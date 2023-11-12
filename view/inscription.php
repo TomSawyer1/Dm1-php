@@ -1,77 +1,103 @@
 <?php
-$username = "";
-$email = "";
-$password = "";
-$errors = array();
 
-// connect to the database
-//$conn = new mysqli('localhost', 'username', 'password', 'database');
+include("../inc/init.inc.php");
 
-// check the connection
-/*if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}*/
+// Vérifier si la requête est une requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-// REGISTER USER
-if (isset($_POST['reg_user'])) {
-    // receive all input values from the form
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    // form validation: ensure that the form is correctly filled
-    if (empty($username)) {
-        array_push($errors, "Username is required");
+
+    // Récupérer les données du formulaire
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $email = $_POST['email'];
+
+    // Vérifier si tous les champs sont remplis
+    if (empty($username) || empty($password) || empty($confirm_password) || empty($email)) {
+        echo 'Tous les champs sont obligatoires.';
     }
-    if (empty($email)) {
-        array_push($errors, "Email is required");
+    // Vérifier la longueur du mot de passe
+    elseif (strlen($password) < 8) {
+        echo 'Le mot de passe doit contenir au moins 8 caractères.';
     }
-    if (empty($password)) {
-        array_push($errors, "Password is required");
+    // Vérifier si l'adresse email est valide
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo 'L\'adresse email n\'est pas valide.';
     }
+    // Vérifier si les mots de passe correspondent
+    elseif ($password !== $confirm_password) {
+        echo 'Les mots de passe ne correspondent pas.';
+    } else {
+        // Exemple de hachage du mot de passe avec bcrypt
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-    // register user if there are no errors in the form
-    if (count($errors) == 0) {
-        $password = md5($password); //encrypt the password before saving in the database
+        // Préparer la requête SQL avec des déclarations préparées
+        connectDB();
+        $stmt = $bdd->prepare("INSERT INTO users (`name`, `password`, `email`) VALUES (?, ?, ?)");
 
-        $query = "INSERT INTO users (username, email, password) 
-                  VALUES('$username', '$email', '$password')";
-        mysqli_query($conn, $query);
+        // Vérifier la préparation de la requête
+        if ($stmt === false) {
+            die('Erreur de préparation de la requête SQL.');
+        }
 
-        $_SESSION['username'] = $username;
-        $_SESSION['success'] = "You are now logged in";
-        header('location: index.php');
+        // Liaison des paramètres
+        $stmt->bind_param("sss", $username, $hashed_password, $email);
+
+        // Exécuter la requête
+        if ($stmt->execute()) {
+            $_SESSION['message']['inscription'] = 'Inscription réussie, veuillez vous connecter !';
+            // Fermer la connexion et la requête
+            $stmt->close();
+
+            // Rediriger vers la page de connexion après l'inscription
+            header("Location: login.php");
+            exit();
+        } else {
+            // En cas d'échec, rediriger vers la page d'inscription
+            $_SESSION['message']['inscription'] = 'Inscription échouée ! Veuillez vérifier vos informations.';
+            header("Location: inscription.php");
+            exit();
+        }
     }
 }
-
-// ...
-// more PHP code goes here ...
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Registration Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <title>Register</title>
 </head>
 
 <body>
-    <form method="post" action="register.php">
-        <div>
-            <label>Username:</label>
-            <input type="text" name="username" value="<?php echo $username; ?>">
-        </div>
-        <div>
-            <label>Email:</label>
-            <input type="text" name="email" value="<?php echo $email; ?>">
-        </div>
-        <div>
-            <label>Password:</label>
-            <input type="password" name="password" value="<?php echo $password; ?>">
-        </div>
-        <div>
-            <input type="submit" name="reg_user" value="Register">
-        </div>
+    <h2>Register</h2>
+
+    <p>
+        <?php
+        // Afficher le message d'inscription s'il existe
+        echo isset($_SESSION['message']['inscription']) ? $_SESSION['message']['inscription'] : '';
+        ?>
+    </p>
+
+    <!-- Utiliser la même page pour le traitement du formulaire -->
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required><br>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+
+        <label for="confirm_password">Confirm Password:</label>
+        <input type="password" id="confirm_password" name="confirm_password" required><br>
+
+        <input type="submit" value="Register">
     </form>
 </body>
 

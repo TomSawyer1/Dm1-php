@@ -1,39 +1,86 @@
 <?php
-// Vérifier si le formulaire a été soumis
+
+include("../inc/init.inc.php");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupérer les valeurs du formulaire
-    $email = $_POST['email'];
+    // Récupérer les données du formulaire
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Valider les informations d'identification
-    if ($email === 'user@example.com' && $password === 'password') {
-        // Connexion réussie, vous pouvez maintenant rediriger vers la page d'accueil ou afficher un message de bienvenue
-        echo "Bienvenue, " . $email;
+    // Votre logique de vérification du mot de passe
+    if (verifyPassword($username, $password, connectDB())) {
+        $_SESSION['message']['connexion'] = 'Connexion réussie !';
+        $_SESSION['user_logged_in'] = "1";
+        // Rediriger vers la page d'accueil ou toute autre page souhaitée après la connexion
+        header("Location: transaction.php");
+        exit();
     } else {
-        // Informations d'identification incorrectes, vous pouvez afficher un message d'erreur
-        echo "Adresse e-mail ou mot de passe incorrect.";
+        $_SESSION['message']['connexion'] = 'Nom d\'utilisateur ou mot de passe incorrect.';
+        // Rediriger vers la page de connexion en cas d'échec de connexion
+        header("Location: login.php");
+        exit();
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Connexion</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <title>Login</title>
 </head>
 
 <body>
-    <h1>Connexion</h1>
-    <form method="post">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required>
-        <br>
+    <h2>Login</h2>
+
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+
         <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <button type="submit">Login</button>
+        <input type="password" id="password" name="password" required><br>
+
+        <input type="submit" value="Login">
     </form>
+    <p style="color:red;">
+        <?php
+
+        echo isset($_SESSION['message']['connexion']) ? $_SESSION['message']['connexion'] : '';
+        ?>
+    </p>
 </body>
 
 </html>
+
+<?php
+/*// Vérifier si la requête est une requête POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Récupérer les données du formulaire
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Votre logique de vérification du mot de passe
+    // Utilisez la connexion à la base de données depuis connexion.php
+
+    // Exemple de vérification de mot de passe (à remplacer par votre propre logique)
+    include("connexion.php"); // Inclure le fichier de connexion
+
+    if (verifyPassword($username, $password, $bdd)) {
+        $_SESSION['message']['connexion'] = 'Connexion réussie !';
+        $_SESSION['user_logged_in'] = "1";
+        // Rediriger vers la page d'accueil ou toute autre page souhaitée après la connexion
+        header("Location: transaction.php");
+        exit();
+    } else {
+        $_SESSION['message']['connexion'] = 'Nom d\'utilisateur ou mot de passe incorrect.';
+        // Rediriger vers la page de connexion en cas d'échec de connexion
+        header("Location: login.php");
+        exit();
+    }
+}*/
+
+
+?>

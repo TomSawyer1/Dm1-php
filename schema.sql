@@ -2,10 +2,10 @@
 -- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost:8889
--- Generation Time: Nov 12, 2023 at 04:57 PM
--- Server version: 5.7.39
--- PHP Version: 7.4.33
+-- Hôte : 127.0.0.1:3306
+-- Généré le : dim. 12 nov. 2023 à 23:18
+-- Version du serveur : 8.0.31
+-- Version de PHP : 8.0.26
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,86 +18,40 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `schema`
+-- Base de données : `schema`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `transactions`
+-- Structure de la table `transactions`
 --
 
-CREATE TABLE `transactions` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
+DROP TABLE IF EXISTS `transactions`;
+CREATE TABLE IF NOT EXISTS `transactions` (
+  `transaction_id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int DEFAULT NULL,
   `label` varchar(255) DEFAULT NULL,
-  `amount` int(11) DEFAULT NULL,
+  `amount` int DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
-
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`transaction_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
 
 --
--- Dumping data for table `users`
+-- Déchargement des données de la table `transactions`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `created_at`, `updated_at`) VALUES
-(1, 'Thlady_', 'ladouyouthomas@outlook.fr', '$2y$10$hrj88ymtFhH8YzpgyykyQeUj0X4QN7p3JMJ0DhFsWeB18EOhC4CqS', '2023-11-11 20:45:31', '2023-11-11 20:45:31');
+INSERT INTO `transactions` (`transaction_id`, `user_id`, `label`, `amount`, `created_at`, `updated_at`) VALUES
+(3, 2, 'non', 65, '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 --
--- Indexes for dumped tables
+-- Contraintes pour les tables déchargées
 --
 
 --
--- Indexes for table `transactions`
---
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `transactions`
---
-ALTER TABLE `transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `transactions`
+-- Contraintes pour la table `transactions`
 --
 ALTER TABLE `transactions`
   ADD CONSTRAINT `transactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);

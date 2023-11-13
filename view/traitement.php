@@ -1,9 +1,10 @@
 <?php
 
 include("../inc/init.inc.php");
-
-// Supposons que $bdd est votre objet PDO pour la connexion à la base de données
-
+if (!$_SESSION['user_logged_in']) {
+    header("Location: login.php");
+}
+// Vérifiez si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Récupérez les données du formulaire
     $euros = isset($_POST['euros']) ? floatval($_POST['euros']) : 0;
@@ -11,17 +12,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Assurez-vous que les données sont valides
     if ($euros > 0 && !empty($libelle)) {
-
+        // Assurez-vous que $bdd est disponible (connexion à la base de données)
+        $bdd = connectDB(); // Ajoutez cette ligne pour obtenir l'objet PDO
+        session_start();
+        $id = $_SESSION['id'];
         // Ajoutez la nouvelle transaction à la base de données
-        $sql = "INSERT INTO transactions (euros, label) VALUES (:euros, :libelle)";
+        $sql = "INSERT INTO transactions (amount, label , user_id) VALUES (:euros, :libelle , :id)";
         $stmt = $bdd->prepare($sql);
         $stmt->bindParam(':euros', $euros, PDO::PARAM_STR);
         $stmt->bindParam(':libelle', $libelle, PDO::PARAM_STR);
-        $stmt->execute();
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
 
-        // Redirigez l'utilisateur vers la page principale ou une autre page après l'ajout
-        header("Location: index.php");
-        exit;
+
+
+        if ($stmt->execute()) {
+            // Redirigez l'utilisateur vers la page principale ou une autre page après l'ajout
+            header("Location: view-transaction.php");
+            exit;
+        } else {
+            echo "Erreur lors de l'ajout de la transaction.";
+        }
     } else {
         echo "Veuillez fournir des données valides.";
     }

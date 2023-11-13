@@ -1,12 +1,8 @@
 <?php
-
 include("../inc/init.inc.php");
 
 // Vérifier si la requête est une requête POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-
-
     // Récupérer les données du formulaire
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -33,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
         // Préparer la requête SQL avec des déclarations préparées
-        connectDB();
+        $bdd = connectDB();
         $stmt = $bdd->prepare("INSERT INTO users (`name`, `password`, `email`) VALUES (?, ?, ?)");
 
         // Vérifier la préparation de la requête
@@ -41,15 +37,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             die('Erreur de préparation de la requête SQL.');
         }
 
+
         // Liaison des paramètres
-        $stmt->bind_param("sss", $username, $hashed_password, $email);
+        $stmt->bindValue(1, $username, PDO::PARAM_STR);
+        $stmt->bindValue(2, $hashed_password, PDO::PARAM_STR);
+        $stmt->bindValue(3, $email, PDO::PARAM_STR);
+
 
         // Exécuter la requête
         if ($stmt->execute()) {
             $_SESSION['message']['inscription'] = 'Inscription réussie, veuillez vous connecter !';
-            // Fermer la connexion et la requête
-            $stmt->close();
-
             // Rediriger vers la page de connexion après l'inscription
             header("Location: login.php");
             exit();

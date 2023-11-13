@@ -10,9 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Votre logique de vérification du mot de passe
     if (verifyPassword($username, $password, connectDB())) {
         $_SESSION['message']['connexion'] = 'Connexion réussie !';
-        $_SESSION['user_logged_in'] = "1";
+        $_SESSION['user_logged_in'] = true;
+        $result['id'] = $_SESSION['id'];
         // Rediriger vers la page d'accueil ou toute autre page souhaitée après la connexion
-        header("Location: transaction.php");
+        header("Location: transactions.php");
         exit();
     } else {
         $_SESSION['message']['connexion'] = 'Nom d\'utilisateur ou mot de passe incorrect.';
@@ -54,33 +55,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </body>
 
 </html>
-
-<?php
-/*// Vérifier si la requête est une requête POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupérer les données du formulaire
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    // Votre logique de vérification du mot de passe
-    // Utilisez la connexion à la base de données depuis connexion.php
-
-    // Exemple de vérification de mot de passe (à remplacer par votre propre logique)
-    include("connexion.php"); // Inclure le fichier de connexion
-
-    if (verifyPassword($username, $password, $bdd)) {
-        $_SESSION['message']['connexion'] = 'Connexion réussie !';
-        $_SESSION['user_logged_in'] = "1";
-        // Rediriger vers la page d'accueil ou toute autre page souhaitée après la connexion
-        header("Location: transaction.php");
-        exit();
-    } else {
-        $_SESSION['message']['connexion'] = 'Nom d\'utilisateur ou mot de passe incorrect.';
-        // Rediriger vers la page de connexion en cas d'échec de connexion
-        header("Location: login.php");
-        exit();
-    }
-}*/
-
-
-?>

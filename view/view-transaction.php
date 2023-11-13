@@ -1,3 +1,27 @@
+<?php
+
+// Inclure le fichier d'initialisation de la base de données
+include("../inc/init.inc.php");
+
+try {
+    // Vérifier si l'utilisateur est connecté
+    if (!isset($_SESSION['user_logged_in']) || !$_SESSION['user_logged_in']) {
+        header("Location: login.php");
+        exit(); // Assurez-vous de terminer le script après la redirection
+    }
+
+    // Se connecter à la base de données
+    $bdd = connectDB();
+
+    // Sélectionner toutes les transactions depuis la base de données
+    $stmt = $bdd->query("SELECT * FROM transactions");
+    $transactions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    // Gérer les erreurs de connexion à la base de données ou de requête
+    die("Erreur : " . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -12,15 +36,6 @@
 
     <h1>Liste des Transactions</h1>
 
-    <?php
-    // Supposons que $transactions est un tableau avec les données des transactions provenant de votre base de données
-    $transactions = [
-        ['id' => 1, 'user_id' => 1, 'label' => 'Achat', 'amount' => 50.00, 'created_at' => '2023-06-01 12:00:00', 'updated_at' => '2023-06-01 12:30:00'],
-        ['id' => 2, 'user_id' => 1, 'label' => 'Vente', 'amount' => 30.50, 'created_at' => '2023-06-02 14:00:00', 'updated_at' => '2023-06-02 14:30:00'],
-        // Ajoutez d'autres transactions ici
-    ];
-    ?>
-
     <table border="1">
         <tr>
             <th>ID</th>
@@ -34,7 +49,7 @@
 
         <?php foreach ($transactions as $transaction) : ?>
             <tr>
-                <td><?= $transaction['id']; ?></td>
+                <td><?= $transaction['transaction_id']; ?></td>
                 <td><?= $transaction['user_id']; ?></td>
                 <td><?= $transaction['label']; ?></td>
                 <td><?= $transaction['amount']; ?></td>
@@ -42,11 +57,11 @@
                 <td><?= $transaction['updated_at']; ?></td>
                 <td>
                     <form action="modifier_transaction.php" method="post" style="display:inline;">
-                        <input type="hidden" name="transaction_id" value="<?= $transaction['id']; ?>">
+                        <input type="hidden" name="transaction_id" value="<?= $transaction['transaction_id']; ?>">
                         <button type="submit">Modifier</button>
                     </form>
                     <form action="supprimer_transaction.php" method="post" style="display:inline;">
-                        <input type="hidden" name="transaction_id" value="<?= $transaction['id']; ?>">
+                        <input type="hidden" name="transaction_id" value="<?= $transaction['transaction_id']; ?>">
                         <button type="submit">Supprimer</button>
                     </form>
                 </td>

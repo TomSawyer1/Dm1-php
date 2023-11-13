@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (!$_SESSION['user_logged_in']) {
+    header("Location: login.php");
+}
+?>
+
 <!DOCTYPE html>
 <html>
 

@@ -27,11 +27,11 @@ try {
         $stmt->execute();
 
         // Rediriger l'utilisateur vers la page principale après la suppression
-        header("Location: transaction-view.php");
+        header("Location: view-transaction.php");
         exit();
     } else {
         // Rediriger l'utilisateur vers la page principale en cas d'ID manquant
-        header("Location: transaction-view.php");
+        header("Location: view-transaction.php");
         exit();
     }
 } catch (Exception $e) {
